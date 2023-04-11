@@ -1,5 +1,5 @@
 <template>
-  <form @submit.prevent="someLog" class="w-25">
+  <form @submit.prevent="loginUser" class="w-25">
     <div class="mb-3">
       <label for="exampleInputEmail1" class="form-label">Email address</label>
       <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
@@ -16,8 +16,8 @@
 <script>
 export default {
   methods: {
-    someLog() {
-      console.log(123);
+    loginUser() {
+      axios.get('/api/')
     }
   }
 }

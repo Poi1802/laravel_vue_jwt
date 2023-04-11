@@ -1776,6 +1776,23 @@
             /**
      * 
      *
+     * @method static \Illuminate\Contracts\Auth\Authenticatable|bool loginUsingId(mixed $id, bool $remember = false)
+     * @method static bool viaRemember()
+     * @method static \Symfony\Component\HttpFoundation\Response|null basic(string $field = 'email', array $extraConditions = [])
+     * @method static \Symfony\Component\HttpFoundation\Response|null onceBasic(string $field = 'email', array $extraConditions = [])
+     * @method static bool attemptWhen(array $credentials = [], array|callable|null $callbacks = null, bool $remember = false)
+     * @method static void logoutCurrentDevice()
+     * @method static \Illuminate\Contracts\Auth\Authenticatable|null logoutOtherDevices(string $password, string $attribute = 'password')
+     * @method static void attempting(mixed $callback)
+     * @method static string getName()
+     * @method static string getRecallerName()
+     * @method static \Illuminate\Auth\SessionGuard setRememberDuration(int $minutes)
+     * @method static \Illuminate\Contracts\Cookie\QueueingFactory getCookieJar()
+     * @method static void setCookieJar(\Illuminate\Contracts\Cookie\QueueingFactory $cookie)
+     * @method static \Illuminate\Contracts\Events\Dispatcher getDispatcher()
+     * @method static void setDispatcher(\Illuminate\Contracts\Events\Dispatcher $events)
+     * @method static \Illuminate\Contracts\Session\Session getSession()
+     * @method static \Illuminate\Support\Timebox getTimebox()
      * @see \Illuminate\Auth\AuthManager
      * @see \Illuminate\Auth\SessionGuard
      */ 
@@ -1981,43 +1998,20 @@
          */ 
         public static function user()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->user();
         }
                     /**
-         * Get the ID for the currently authenticated user.
+         * Get the currently authenticated user or throws an exception.
          *
-         * @return int|string|null 
+         * @return \App\Models\User 
+         * @throws \Tymon\JWTAuth\Exceptions\UserNotDefinedException
          * @static 
          */ 
-        public static function id()
+        public static function userOrFail()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->id();
-        }
-                    /**
-         * Log a user into the application without sessions or cookies.
-         *
-         * @param array $credentials
-         * @return bool 
-         * @static 
-         */ 
-        public static function once($credentials = [])
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->once($credentials);
-        }
-                    /**
-         * Log the given user ID into the application without sessions or cookies.
-         *
-         * @param mixed $id
-         * @return \App\Models\User|false 
-         * @static 
-         */ 
-        public static function onceUsingId($id)
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->onceUsingId($id);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->userOrFail();
         }
                     /**
          * Validate a user's credentials.
@@ -2028,255 +2022,199 @@
          */ 
         public static function validate($credentials = [])
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->validate($credentials);
         }
                     /**
-         * Attempt to authenticate using HTTP Basic Auth.
-         *
-         * @param string $field
-         * @param array $extraConditions
-         * @return \Symfony\Component\HttpFoundation\Response|null 
-         * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
-         * @static 
-         */ 
-        public static function basic($field = 'email', $extraConditions = [])
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->basic($field, $extraConditions);
-        }
-                    /**
-         * Perform a stateless HTTP Basic login attempt.
-         *
-         * @param string $field
-         * @param array $extraConditions
-         * @return \Symfony\Component\HttpFoundation\Response|null 
-         * @throws \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException
-         * @static 
-         */ 
-        public static function onceBasic($field = 'email', $extraConditions = [])
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->onceBasic($field, $extraConditions);
-        }
-                    /**
-         * Attempt to authenticate a user using the given credentials.
+         * Attempt to authenticate the user using the given credentials and return the token.
          *
          * @param array $credentials
-         * @param bool $remember
-         * @return bool 
+         * @param bool $login
+         * @return bool|string 
          * @static 
          */ 
-        public static function attempt($credentials = [], $remember = false)
+        public static function attempt($credentials = [], $login = true)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->attempt($credentials, $remember);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->attempt($credentials, $login);
         }
                     /**
-         * Attempt to authenticate a user with credentials and additional callbacks.
+         * Create a token for a user.
          *
-         * @param array $credentials
-         * @param array|callable|null $callbacks
-         * @param bool $remember
-         * @return bool 
+         * @param \Tymon\JWTAuth\Contracts\JWTSubject $user
+         * @return string 
          * @static 
          */ 
-        public static function attemptWhen($credentials = [], $callbacks = null, $remember = false)
+        public static function login($user)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->attemptWhen($credentials, $callbacks, $remember);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->login($user);
         }
                     /**
-         * Log the given user ID into the application.
+         * Logout the user, thus invalidating the token.
+         *
+         * @param bool $forceForever
+         * @return void 
+         * @static 
+         */ 
+        public static function logout($forceForever = false)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        $instance->logout($forceForever);
+        }
+                    /**
+         * Refresh the token.
+         *
+         * @param bool $forceForever
+         * @param bool $resetClaims
+         * @return string 
+         * @static 
+         */ 
+        public static function refresh($forceForever = false, $resetClaims = false)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->refresh($forceForever, $resetClaims);
+        }
+                    /**
+         * Invalidate the token.
+         *
+         * @param bool $forceForever
+         * @return \Tymon\JWTAuth\JWT 
+         * @static 
+         */ 
+        public static function invalidate($forceForever = false)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->invalidate($forceForever);
+        }
+                    /**
+         * Create a new token by User id.
          *
          * @param mixed $id
-         * @param bool $remember
-         * @return \App\Models\User|false 
+         * @return string|null 
          * @static 
          */ 
-        public static function loginUsingId($id, $remember = false)
+        public static function tokenById($id)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->loginUsingId($id, $remember);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->tokenById($id);
         }
                     /**
-         * Log a user into the application.
+         * Log a user into the application using their credentials.
          *
-         * @param \Illuminate\Contracts\Auth\Authenticatable $user
-         * @param bool $remember
-         * @return void 
-         * @static 
-         */ 
-        public static function login($user, $remember = false)
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->login($user, $remember);
-        }
-                    /**
-         * Log the user out of the application.
-         *
-         * @return void 
-         * @static 
-         */ 
-        public static function logout()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->logout();
-        }
-                    /**
-         * Log the user out of the application on their current device only.
-         * 
-         * This method does not cycle the "remember" token.
-         *
-         * @return void 
-         * @static 
-         */ 
-        public static function logoutCurrentDevice()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->logoutCurrentDevice();
-        }
-                    /**
-         * Invalidate other sessions for the current user.
-         * 
-         * The application must be using the AuthenticateSession middleware.
-         *
-         * @param string $password
-         * @param string $attribute
-         * @return \App\Models\User|null 
-         * @throws \Illuminate\Auth\AuthenticationException
-         * @static 
-         */ 
-        public static function logoutOtherDevices($password, $attribute = 'password')
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->logoutOtherDevices($password, $attribute);
-        }
-                    /**
-         * Register an authentication attempt event listener.
-         *
-         * @param mixed $callback
-         * @return void 
-         * @static 
-         */ 
-        public static function attempting($callback)
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->attempting($callback);
-        }
-                    /**
-         * Get the last user we attempted to authenticate.
-         *
-         * @return \App\Models\User 
-         * @static 
-         */ 
-        public static function getLastAttempted()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getLastAttempted();
-        }
-                    /**
-         * Get a unique identifier for the auth session value.
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function getName()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getName();
-        }
-                    /**
-         * Get the name of the cookie used to store the "recaller".
-         *
-         * @return string 
-         * @static 
-         */ 
-        public static function getRecallerName()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getRecallerName();
-        }
-                    /**
-         * Determine if the user was authenticated via "remember me" cookie.
-         *
+         * @param array $credentials
          * @return bool 
          * @static 
          */ 
-        public static function viaRemember()
+        public static function once($credentials = [])
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->viaRemember();
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->once($credentials);
         }
                     /**
-         * Set the number of minutes the remember me cookie should be valid for.
+         * Log the given User into the application.
          *
-         * @param int $minutes
-         * @return \Illuminate\Auth\SessionGuard 
+         * @param mixed $id
+         * @return bool 
          * @static 
          */ 
-        public static function setRememberDuration($minutes)
+        public static function onceUsingId($id)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->setRememberDuration($minutes);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->onceUsingId($id);
         }
                     /**
-         * Get the cookie creator instance used by the guard.
+         * Alias for onceUsingId.
          *
-         * @return \Illuminate\Contracts\Cookie\QueueingFactory 
-         * @throws \RuntimeException
+         * @param mixed $id
+         * @return bool 
          * @static 
          */ 
-        public static function getCookieJar()
+        public static function byId($id)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getCookieJar();
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->byId($id);
         }
                     /**
-         * Set the cookie creator instance used by the guard.
+         * Add any custom claims.
          *
-         * @param \Illuminate\Contracts\Cookie\QueueingFactory $cookie
-         * @return void 
+         * @param array $claims
+         * @return \Tymon\JWTAuth\JWTGuard 
          * @static 
          */ 
-        public static function setCookieJar($cookie)
+        public static function claims($claims)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->setCookieJar($cookie);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->claims($claims);
         }
                     /**
-         * Get the event dispatcher instance.
+         * Get the raw Payload instance.
          *
-         * @return \Illuminate\Contracts\Events\Dispatcher 
+         * @return \Tymon\JWTAuth\Payload 
          * @static 
          */ 
-        public static function getDispatcher()
+        public static function getPayload()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getDispatcher();
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->getPayload();
         }
                     /**
-         * Set the event dispatcher instance.
+         * Alias for getPayload().
          *
-         * @param \Illuminate\Contracts\Events\Dispatcher $events
-         * @return void 
+         * @return \Tymon\JWTAuth\Payload 
          * @static 
          */ 
-        public static function setDispatcher($events)
+        public static function payload()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->setDispatcher($events);
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->payload();
         }
                     /**
-         * Get the session store used by the guard.
+         * Set the token.
          *
-         * @return \Illuminate\Contracts\Session\Session 
+         * @param \Tymon\JWTAuth\Token|string $token
+         * @return \Tymon\JWTAuth\JWTGuard 
          * @static 
          */ 
-        public static function getSession()
+        public static function setToken($token)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getSession();
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->setToken($token);
+        }
+                    /**
+         * Set the token ttl.
+         *
+         * @param int $ttl
+         * @return \Tymon\JWTAuth\JWTGuard 
+         * @static 
+         */ 
+        public static function setTTL($ttl)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->setTTL($ttl);
+        }
+                    /**
+         * Get the user provider used by the guard.
+         *
+         * @return \Illuminate\Contracts\Auth\UserProvider 
+         * @static 
+         */ 
+        public static function getProvider()
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->getProvider();
+        }
+                    /**
+         * Set the user provider used by the guard.
+         *
+         * @param \Illuminate\Contracts\Auth\UserProvider $provider
+         * @return \Tymon\JWTAuth\JWTGuard 
+         * @static 
+         */ 
+        public static function setProvider($provider)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->setProvider($provider);
         }
                     /**
          * Return the currently cached user.
@@ -2286,54 +2224,42 @@
          */ 
         public static function getUser()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->getUser();
-        }
-                    /**
-         * Set the current user.
-         *
-         * @param \Illuminate\Contracts\Auth\Authenticatable $user
-         * @return void 
-         * @static 
-         */ 
-        public static function setUser($user)
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->setUser($user);
         }
                     /**
          * Get the current request instance.
          *
-         * @return \Symfony\Component\HttpFoundation\Request 
+         * @return \Illuminate\Http\Request 
          * @static 
          */ 
         public static function getRequest()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->getRequest();
         }
                     /**
          * Set the current request instance.
          *
-         * @param \Symfony\Component\HttpFoundation\Request $request
-         * @return \Illuminate\Auth\SessionGuard 
+         * @param \Illuminate\Http\Request $request
+         * @return \Tymon\JWTAuth\JWTGuard 
          * @static 
          */ 
         public static function setRequest($request)
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->setRequest($request);
         }
                     /**
-         * Get the timebox instance used by the guard.
+         * Get the last user we attempted to authenticate.
          *
-         * @return \Illuminate\Support\Timebox 
+         * @return \App\Models\User 
          * @static 
          */ 
-        public static function getTimebox()
+        public static function getLastAttempted()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getTimebox();
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->getLastAttempted();
         }
                     /**
          * Determine if the current user is authenticated. If not, throw an exception.
@@ -2344,7 +2270,7 @@
          */ 
         public static function authenticate()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->authenticate();
         }
                     /**
@@ -2355,7 +2281,7 @@
          */ 
         public static function hasUser()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->hasUser();
         }
                     /**
@@ -2366,7 +2292,7 @@
          */ 
         public static function check()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->check();
         }
                     /**
@@ -2377,42 +2303,42 @@
          */ 
         public static function guest()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->guest();
+        }
+                    /**
+         * Get the ID for the currently authenticated user.
+         *
+         * @return int|string|null 
+         * @static 
+         */ 
+        public static function id()
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->id();
+        }
+                    /**
+         * Set the current user.
+         *
+         * @param \Illuminate\Contracts\Auth\Authenticatable $user
+         * @return void 
+         * @static 
+         */ 
+        public static function setUser($user)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        $instance->setUser($user);
         }
                     /**
          * Forget the current user.
          *
-         * @return \Illuminate\Auth\SessionGuard 
+         * @return \Tymon\JWTAuth\JWTGuard 
          * @static 
          */ 
         public static function forgetUser()
         {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
                         return $instance->forgetUser();
-        }
-                    /**
-         * Get the user provider used by the guard.
-         *
-         * @return \Illuminate\Contracts\Auth\UserProvider 
-         * @static 
-         */ 
-        public static function getProvider()
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        return $instance->getProvider();
-        }
-                    /**
-         * Set the user provider used by the guard.
-         *
-         * @param \Illuminate\Contracts\Auth\UserProvider $provider
-         * @return void 
-         * @static 
-         */ 
-        public static function setProvider($provider)
-        {
-                        /** @var \Illuminate\Auth\SessionGuard $instance */
-                        $instance->setProvider($provider);
         }
                     /**
          * Register a custom macro.
@@ -2424,7 +2350,7 @@
          */ 
         public static function macro($name, $macro)
         {
-                        \Illuminate\Auth\SessionGuard::macro($name, $macro);
+                        \Tymon\JWTAuth\JWTGuard::macro($name, $macro);
         }
                     /**
          * Mix another object into the class.
@@ -2437,7 +2363,7 @@
          */ 
         public static function mixin($mixin, $replace = true)
         {
-                        \Illuminate\Auth\SessionGuard::mixin($mixin, $replace);
+                        \Tymon\JWTAuth\JWTGuard::mixin($mixin, $replace);
         }
                     /**
          * Checks if macro is registered.
@@ -2448,7 +2374,7 @@
          */ 
         public static function hasMacro($name)
         {
-                        return \Illuminate\Auth\SessionGuard::hasMacro($name);
+                        return \Tymon\JWTAuth\JWTGuard::hasMacro($name);
         }
                     /**
          * Flush the existing macros.
@@ -2458,7 +2384,21 @@
          */ 
         public static function flushMacros()
         {
-                        \Illuminate\Auth\SessionGuard::flushMacros();
+                        \Tymon\JWTAuth\JWTGuard::flushMacros();
+        }
+                    /**
+         * Dynamically handle calls to the class.
+         *
+         * @param string $method
+         * @param array $parameters
+         * @return mixed 
+         * @throws \BadMethodCallException
+         * @static 
+         */ 
+        public static function macroCall($method, $parameters)
+        {
+                        /** @var \Tymon\JWTAuth\JWTGuard $instance */
+                        return $instance->macroCall($method, $parameters);
         }
          
     }
@@ -5236,25 +5176,14 @@
                         return $instance->macroCall($method, $parameters);
         }
                     /**
-         * Determine if the connected database is a MariaDB database.
-         *
-         * @return bool 
-         * @static 
-         */ 
-        public static function isMaria()
-        {
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
-                        return $instance->isMaria();
-        }
-                    /**
          * Get a schema builder instance for the connection.
          *
-         * @return \Illuminate\Database\Schema\MySqlBuilder 
+         * @return \Illuminate\Database\Schema\SQLiteBuilder 
          * @static 
          */ 
         public static function getSchemaBuilder()
         {
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getSchemaBuilder();
         }
                     /**
@@ -5262,12 +5191,12 @@
          *
          * @param \Illuminate\Filesystem\Filesystem|null $files
          * @param callable|null $processFactory
-         * @return \Illuminate\Database\Schema\MySqlSchemaState 
+         * @throws \RuntimeException
          * @static 
          */ 
         public static function getSchemaState($files = null, $processFactory = null)
         {
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getSchemaState($files, $processFactory);
         }
                     /**
@@ -5278,7 +5207,7 @@
          */ 
         public static function useDefaultQueryGrammar()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->useDefaultQueryGrammar();
         }
                     /**
@@ -5289,7 +5218,7 @@
          */ 
         public static function useDefaultSchemaGrammar()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->useDefaultSchemaGrammar();
         }
                     /**
@@ -5300,7 +5229,7 @@
          */ 
         public static function useDefaultPostProcessor()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->useDefaultPostProcessor();
         }
                     /**
@@ -5313,7 +5242,7 @@
          */ 
         public static function table($table, $as = null)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->table($table, $as);
         }
                     /**
@@ -5324,7 +5253,7 @@
          */ 
         public static function query()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->query();
         }
                     /**
@@ -5338,7 +5267,7 @@
          */ 
         public static function selectOne($query, $bindings = [], $useReadPdo = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->selectOne($query, $bindings, $useReadPdo);
         }
                     /**
@@ -5353,7 +5282,7 @@
          */ 
         public static function scalar($query, $bindings = [], $useReadPdo = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->scalar($query, $bindings, $useReadPdo);
         }
                     /**
@@ -5366,7 +5295,7 @@
          */ 
         public static function selectFromWriteConnection($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->selectFromWriteConnection($query, $bindings);
         }
                     /**
@@ -5380,7 +5309,7 @@
          */ 
         public static function select($query, $bindings = [], $useReadPdo = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->select($query, $bindings, $useReadPdo);
         }
                     /**
@@ -5394,7 +5323,7 @@
          */ 
         public static function selectResultSets($query, $bindings = [], $useReadPdo = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->selectResultSets($query, $bindings, $useReadPdo);
         }
                     /**
@@ -5408,7 +5337,7 @@
          */ 
         public static function cursor($query, $bindings = [], $useReadPdo = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->cursor($query, $bindings, $useReadPdo);
         }
                     /**
@@ -5421,7 +5350,7 @@
          */ 
         public static function insert($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->insert($query, $bindings);
         }
                     /**
@@ -5434,7 +5363,7 @@
          */ 
         public static function update($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->update($query, $bindings);
         }
                     /**
@@ -5447,7 +5376,7 @@
          */ 
         public static function delete($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->delete($query, $bindings);
         }
                     /**
@@ -5460,7 +5389,7 @@
          */ 
         public static function statement($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->statement($query, $bindings);
         }
                     /**
@@ -5473,7 +5402,7 @@
          */ 
         public static function affectingStatement($query, $bindings = [])
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->affectingStatement($query, $bindings);
         }
                     /**
@@ -5485,7 +5414,7 @@
          */ 
         public static function unprepared($query)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->unprepared($query);
         }
                     /**
@@ -5497,7 +5426,7 @@
          */ 
         public static function pretend($callback)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->pretend($callback);
         }
                     /**
@@ -5510,7 +5439,7 @@
          */ 
         public static function bindValues($statement, $bindings)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->bindValues($statement, $bindings);
         }
                     /**
@@ -5522,7 +5451,7 @@
          */ 
         public static function prepareBindings($bindings)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->prepareBindings($bindings);
         }
                     /**
@@ -5536,7 +5465,7 @@
          */ 
         public static function logQuery($query, $bindings, $time = null)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->logQuery($query, $bindings, $time);
         }
                     /**
@@ -5549,7 +5478,7 @@
          */ 
         public static function whenQueryingForLongerThan($threshold, $handler)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->whenQueryingForLongerThan($threshold, $handler);
         }
                     /**
@@ -5560,7 +5489,7 @@
          */ 
         public static function allowQueryDurationHandlersToRunAgain()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->allowQueryDurationHandlersToRunAgain();
         }
                     /**
@@ -5571,7 +5500,7 @@
          */ 
         public static function totalQueryDuration()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->totalQueryDuration();
         }
                     /**
@@ -5582,7 +5511,7 @@
          */ 
         public static function resetTotalQueryDuration()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->resetTotalQueryDuration();
         }
                     /**
@@ -5593,19 +5522,19 @@
          */ 
         public static function reconnectIfMissingConnection()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->reconnectIfMissingConnection();
         }
                     /**
          * Register a hook to be run just before a database query is executed.
          *
          * @param \Closure $callback
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function beforeExecuting($callback)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->beforeExecuting($callback);
         }
                     /**
@@ -5617,7 +5546,7 @@
          */ 
         public static function listen($callback)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->listen($callback);
         }
                     /**
@@ -5629,7 +5558,7 @@
          */ 
         public static function raw($value)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->raw($value);
         }
                     /**
@@ -5640,7 +5569,7 @@
          */ 
         public static function hasModifiedRecords()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->hasModifiedRecords();
         }
                     /**
@@ -5652,19 +5581,19 @@
          */ 
         public static function recordsHaveBeenModified($value = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->recordsHaveBeenModified($value);
         }
                     /**
          * Set the record modification state.
          *
          * @param bool $value
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setRecordModificationState($value)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setRecordModificationState($value);
         }
                     /**
@@ -5675,19 +5604,19 @@
          */ 
         public static function forgetRecordModificationState()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->forgetRecordModificationState();
         }
                     /**
          * Indicate that the connection should use the write PDO connection for reads.
          *
          * @param bool $value
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function useWriteConnectionWhenReading($value = true)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->useWriteConnectionWhenReading($value);
         }
                     /**
@@ -5698,7 +5627,7 @@
          */ 
         public static function isDoctrineAvailable()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->isDoctrineAvailable();
         }
                     /**
@@ -5709,7 +5638,7 @@
          */ 
         public static function usingNativeSchemaOperations()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->usingNativeSchemaOperations();
         }
                     /**
@@ -5722,7 +5651,7 @@
          */ 
         public static function getDoctrineColumn($table, $column)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getDoctrineColumn($table, $column);
         }
                     /**
@@ -5733,7 +5662,7 @@
          */ 
         public static function getDoctrineSchemaManager()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getDoctrineSchemaManager();
         }
                     /**
@@ -5744,7 +5673,7 @@
          */ 
         public static function getDoctrineConnection()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getDoctrineConnection();
         }
                     /**
@@ -5755,7 +5684,7 @@
          */ 
         public static function getPdo()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getPdo();
         }
                     /**
@@ -5766,7 +5695,7 @@
          */ 
         public static function getRawPdo()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getRawPdo();
         }
                     /**
@@ -5777,7 +5706,7 @@
          */ 
         public static function getReadPdo()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getReadPdo();
         }
                     /**
@@ -5788,31 +5717,31 @@
          */ 
         public static function getRawReadPdo()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getRawReadPdo();
         }
                     /**
          * Set the PDO connection.
          *
          * @param \PDO|\Closure|null $pdo
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setPdo($pdo)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setPdo($pdo);
         }
                     /**
          * Set the PDO connection used for reading.
          *
          * @param \PDO|\Closure|null $pdo
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setReadPdo($pdo)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setReadPdo($pdo);
         }
                     /**
@@ -5823,7 +5752,7 @@
          */ 
         public static function getName()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getName();
         }
                     /**
@@ -5834,7 +5763,7 @@
          */ 
         public static function getNameWithReadWriteType()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getNameWithReadWriteType();
         }
                     /**
@@ -5846,7 +5775,7 @@
          */ 
         public static function getConfig($option = null)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getConfig($option);
         }
                     /**
@@ -5857,7 +5786,7 @@
          */ 
         public static function getDriverName()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getDriverName();
         }
                     /**
@@ -5868,19 +5797,19 @@
          */ 
         public static function getQueryGrammar()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getQueryGrammar();
         }
                     /**
          * Set the query grammar used by the connection.
          *
          * @param \Illuminate\Database\Query\Grammars\Grammar $grammar
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setQueryGrammar($grammar)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setQueryGrammar($grammar);
         }
                     /**
@@ -5891,19 +5820,19 @@
          */ 
         public static function getSchemaGrammar()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getSchemaGrammar();
         }
                     /**
          * Set the schema grammar used by the connection.
          *
          * @param \Illuminate\Database\Schema\Grammars\Grammar $grammar
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setSchemaGrammar($grammar)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setSchemaGrammar($grammar);
         }
                     /**
@@ -5914,19 +5843,19 @@
          */ 
         public static function getPostProcessor()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getPostProcessor();
         }
                     /**
          * Set the query post processor used by the connection.
          *
          * @param \Illuminate\Database\Query\Processors\Processor $processor
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setPostProcessor($processor)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setPostProcessor($processor);
         }
                     /**
@@ -5937,19 +5866,19 @@
          */ 
         public static function getEventDispatcher()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getEventDispatcher();
         }
                     /**
          * Set the event dispatcher instance on the connection.
          *
          * @param \Illuminate\Contracts\Events\Dispatcher $events
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setEventDispatcher($events)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setEventDispatcher($events);
         }
                     /**
@@ -5960,19 +5889,19 @@
          */ 
         public static function unsetEventDispatcher()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->unsetEventDispatcher();
         }
                     /**
          * Set the transaction manager instance on the connection.
          *
          * @param \Illuminate\Database\DatabaseTransactionsManager $manager
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setTransactionManager($manager)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setTransactionManager($manager);
         }
                     /**
@@ -5983,7 +5912,7 @@
          */ 
         public static function unsetTransactionManager()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->unsetTransactionManager();
         }
                     /**
@@ -5994,7 +5923,7 @@
          */ 
         public static function pretending()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->pretending();
         }
                     /**
@@ -6005,7 +5934,7 @@
          */ 
         public static function getQueryLog()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getQueryLog();
         }
                     /**
@@ -6016,7 +5945,7 @@
          */ 
         public static function flushQueryLog()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->flushQueryLog();
         }
                     /**
@@ -6027,7 +5956,7 @@
          */ 
         public static function enableQueryLog()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->enableQueryLog();
         }
                     /**
@@ -6038,7 +5967,7 @@
          */ 
         public static function disableQueryLog()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->disableQueryLog();
         }
                     /**
@@ -6049,7 +5978,7 @@
          */ 
         public static function logging()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->logging();
         }
                     /**
@@ -6060,31 +5989,31 @@
          */ 
         public static function getDatabaseName()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getDatabaseName();
         }
                     /**
          * Set the name of the connected database.
          *
          * @param string $database
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setDatabaseName($database)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setDatabaseName($database);
         }
                     /**
          * Set the read / write type of the connection.
          *
          * @param string|null $readWriteType
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setReadWriteType($readWriteType)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setReadWriteType($readWriteType);
         }
                     /**
@@ -6095,19 +6024,19 @@
          */ 
         public static function getTablePrefix()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->getTablePrefix();
         }
                     /**
          * Set the table prefix in use by the connection.
          *
          * @param string $prefix
-         * @return \Illuminate\Database\MySqlConnection 
+         * @return \Illuminate\Database\SQLiteConnection 
          * @static 
          */ 
         public static function setTablePrefix($prefix)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->setTablePrefix($prefix);
         }
                     /**
@@ -6119,7 +6048,7 @@
          */ 
         public static function withTablePrefix($grammar)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->withTablePrefix($grammar);
         }
                     /**
@@ -6132,7 +6061,7 @@
          */ 
         public static function resolverFor($driver, $callback)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        \Illuminate\Database\MySqlConnection::resolverFor($driver, $callback);
+                        \Illuminate\Database\SQLiteConnection::resolverFor($driver, $callback);
         }
                     /**
          * Get the connection resolver for the given driver.
@@ -6143,7 +6072,7 @@
          */ 
         public static function getResolver($driver)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        return \Illuminate\Database\MySqlConnection::getResolver($driver);
+                        return \Illuminate\Database\SQLiteConnection::getResolver($driver);
         }
                     /**
          * Execute a Closure within a transaction.
@@ -6156,7 +6085,7 @@
          */ 
         public static function transaction($callback, $attempts = 1)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->transaction($callback, $attempts);
         }
                     /**
@@ -6168,7 +6097,7 @@
          */ 
         public static function beginTransaction()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->beginTransaction();
         }
                     /**
@@ -6180,7 +6109,7 @@
          */ 
         public static function commit()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->commit();
         }
                     /**
@@ -6193,7 +6122,7 @@
          */ 
         public static function rollBack($toLevel = null)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->rollBack($toLevel);
         }
                     /**
@@ -6204,7 +6133,7 @@
          */ 
         public static function transactionLevel()
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         return $instance->transactionLevel();
         }
                     /**
@@ -6217,7 +6146,7 @@
          */ 
         public static function afterCommit($callback)
         {            //Method inherited from \Illuminate\Database\Connection         
-                        /** @var \Illuminate\Database\MySqlConnection $instance */
+                        /** @var \Illuminate\Database\SQLiteConnection $instance */
                         $instance->afterCommit($callback);
         }
          
@@ -14272,7 +14201,7 @@
          */ 
         public static function createDatabase($name)
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->createDatabase($name);
         }
                     /**
@@ -14284,32 +14213,8 @@
          */ 
         public static function dropDatabaseIfExists($name)
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->dropDatabaseIfExists($name);
-        }
-                    /**
-         * Determine if the given table exists.
-         *
-         * @param string $table
-         * @return bool 
-         * @static 
-         */ 
-        public static function hasTable($table)
-        {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-                        return $instance->hasTable($table);
-        }
-                    /**
-         * Get the column listing for a given table.
-         *
-         * @param string $table
-         * @return array 
-         * @static 
-         */ 
-        public static function getColumnListing($table)
-        {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
-                        return $instance->getColumnListing($table);
         }
                     /**
          * Drop all tables from the database.
@@ -14319,7 +14224,7 @@
          */ 
         public static function dropAllTables()
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->dropAllTables();
         }
                     /**
@@ -14330,7 +14235,7 @@
          */ 
         public static function dropAllViews()
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->dropAllViews();
         }
                     /**
@@ -14341,7 +14246,7 @@
          */ 
         public static function getAllTables()
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->getAllTables();
         }
                     /**
@@ -14352,8 +14257,19 @@
          */ 
         public static function getAllViews()
         {
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->getAllViews();
+        }
+                    /**
+         * Empty the database file.
+         *
+         * @return void 
+         * @static 
+         */ 
+        public static function refreshDatabaseFile()
+        {
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
+                        $instance->refreshDatabaseFile();
         }
                     /**
          * Set the default string length for migrations.
@@ -14364,7 +14280,7 @@
          */ 
         public static function defaultStringLength($length)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        \Illuminate\Database\Schema\MySqlBuilder::defaultStringLength($length);
+                        \Illuminate\Database\Schema\SQLiteBuilder::defaultStringLength($length);
         }
                     /**
          * Set the default morph key type for migrations.
@@ -14376,7 +14292,7 @@
          */ 
         public static function defaultMorphKeyType($type)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        \Illuminate\Database\Schema\MySqlBuilder::defaultMorphKeyType($type);
+                        \Illuminate\Database\Schema\SQLiteBuilder::defaultMorphKeyType($type);
         }
                     /**
          * Set the default morph key type for migrations to UUIDs.
@@ -14386,7 +14302,7 @@
          */ 
         public static function morphUsingUuids()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        \Illuminate\Database\Schema\MySqlBuilder::morphUsingUuids();
+                        \Illuminate\Database\Schema\SQLiteBuilder::morphUsingUuids();
         }
                     /**
          * Set the default morph key type for migrations to ULIDs.
@@ -14396,7 +14312,7 @@
          */ 
         public static function morphUsingUlids()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        \Illuminate\Database\Schema\MySqlBuilder::morphUsingUlids();
+                        \Illuminate\Database\Schema\SQLiteBuilder::morphUsingUlids();
         }
                     /**
          * Attempt to use native schema operations for dropping, renaming, and modifying columns, even if Doctrine DBAL is installed.
@@ -14407,7 +14323,19 @@
          */ 
         public static function useNativeSchemaOperationsIfPossible($value = true)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        \Illuminate\Database\Schema\MySqlBuilder::useNativeSchemaOperationsIfPossible($value);
+                        \Illuminate\Database\Schema\SQLiteBuilder::useNativeSchemaOperationsIfPossible($value);
+        }
+                    /**
+         * Determine if the given table exists.
+         *
+         * @param string $table
+         * @return bool 
+         * @static 
+         */ 
+        public static function hasTable($table)
+        {            //Method inherited from \Illuminate\Database\Schema\Builder         
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
+                        return $instance->hasTable($table);
         }
                     /**
          * Determine if the given table has a given column.
@@ -14419,7 +14347,7 @@
          */ 
         public static function hasColumn($table, $column)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->hasColumn($table, $column);
         }
                     /**
@@ -14432,7 +14360,7 @@
          */ 
         public static function hasColumns($table, $columns)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->hasColumns($table, $columns);
         }
                     /**
@@ -14446,7 +14374,7 @@
          */ 
         public static function whenTableHasColumn($table, $column, $callback)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->whenTableHasColumn($table, $column, $callback);
         }
                     /**
@@ -14460,7 +14388,7 @@
          */ 
         public static function whenTableDoesntHaveColumn($table, $column, $callback)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->whenTableDoesntHaveColumn($table, $column, $callback);
         }
                     /**
@@ -14473,8 +14401,20 @@
          */ 
         public static function getColumnType($table, $column)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->getColumnType($table, $column);
+        }
+                    /**
+         * Get the column listing for a given table.
+         *
+         * @param string $table
+         * @return array 
+         * @static 
+         */ 
+        public static function getColumnListing($table)
+        {            //Method inherited from \Illuminate\Database\Schema\Builder         
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
+                        return $instance->getColumnListing($table);
         }
                     /**
          * Modify a table on the schema.
@@ -14486,7 +14426,7 @@
          */ 
         public static function table($table, $callback)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->table($table, $callback);
         }
                     /**
@@ -14499,7 +14439,7 @@
          */ 
         public static function create($table, $callback)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->create($table, $callback);
         }
                     /**
@@ -14511,7 +14451,7 @@
          */ 
         public static function drop($table)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->drop($table);
         }
                     /**
@@ -14523,7 +14463,7 @@
          */ 
         public static function dropIfExists($table)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->dropIfExists($table);
         }
                     /**
@@ -14536,7 +14476,7 @@
          */ 
         public static function dropColumns($table, $columns)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->dropColumns($table, $columns);
         }
                     /**
@@ -14548,7 +14488,7 @@
          */ 
         public static function dropAllTypes()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->dropAllTypes();
         }
                     /**
@@ -14561,7 +14501,7 @@
          */ 
         public static function rename($from, $to)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->rename($from, $to);
         }
                     /**
@@ -14572,7 +14512,7 @@
          */ 
         public static function enableForeignKeyConstraints()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->enableForeignKeyConstraints();
         }
                     /**
@@ -14583,7 +14523,7 @@
          */ 
         public static function disableForeignKeyConstraints()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->disableForeignKeyConstraints();
         }
                     /**
@@ -14595,7 +14535,7 @@
          */ 
         public static function withoutForeignKeyConstraints($callback)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->withoutForeignKeyConstraints($callback);
         }
                     /**
@@ -14606,19 +14546,19 @@
          */ 
         public static function getConnection()
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->getConnection();
         }
                     /**
          * Set the database connection instance.
          *
          * @param \Illuminate\Database\Connection $connection
-         * @return \Illuminate\Database\Schema\MySqlBuilder 
+         * @return \Illuminate\Database\Schema\SQLiteBuilder 
          * @static 
          */ 
         public static function setConnection($connection)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         return $instance->setConnection($connection);
         }
                     /**
@@ -14630,7 +14570,7 @@
          */ 
         public static function blueprintResolver($resolver)
         {            //Method inherited from \Illuminate\Database\Schema\Builder         
-                        /** @var \Illuminate\Database\Schema\MySqlBuilder $instance */
+                        /** @var \Illuminate\Database\Schema\SQLiteBuilder $instance */
                         $instance->blueprintResolver($resolver);
         }
          
@@ -18531,6 +18471,500 @@
         {
                         /** @var \Spatie\FlareClient\Flare $instance */
                         return $instance->group($groupName, $properties);
+        }
+         
+    }
+     
+}
+
+    namespace Tymon\JWTAuth\Facades { 
+            /**
+     * 
+     *
+     */ 
+        class JWTAuth {
+                    /**
+         * Attempt to authenticate the user and return the token.
+         *
+         * @param array $credentials
+         * @return false|string 
+         * @static 
+         */ 
+        public static function attempt($credentials)
+        {
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->attempt($credentials);
+        }
+                    /**
+         * Authenticate a user via a token.
+         *
+         * @return \Tymon\JWTAuth\Contracts\JWTSubject|false 
+         * @static 
+         */ 
+        public static function authenticate()
+        {
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->authenticate();
+        }
+                    /**
+         * Alias for authenticate().
+         *
+         * @return \Tymon\JWTAuth\Contracts\JWTSubject|false 
+         * @static 
+         */ 
+        public static function toUser()
+        {
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->toUser();
+        }
+                    /**
+         * Get the authenticated user.
+         *
+         * @return \Tymon\JWTAuth\Contracts\JWTSubject 
+         * @static 
+         */ 
+        public static function user()
+        {
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->user();
+        }
+                    /**
+         * Generate a token for a given subject.
+         *
+         * @param \Tymon\JWTAuth\Contracts\JWTSubject $subject
+         * @return string 
+         * @static 
+         */ 
+        public static function fromSubject($subject)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->fromSubject($subject);
+        }
+                    /**
+         * Alias to generate a token for a given user.
+         *
+         * @param \Tymon\JWTAuth\Contracts\JWTSubject $user
+         * @return string 
+         * @static 
+         */ 
+        public static function fromUser($user)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->fromUser($user);
+        }
+                    /**
+         * Refresh an expired token.
+         *
+         * @param bool $forceForever
+         * @param bool $resetClaims
+         * @return string 
+         * @static 
+         */ 
+        public static function refresh($forceForever = false, $resetClaims = false)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->refresh($forceForever, $resetClaims);
+        }
+                    /**
+         * Invalidate a token (add it to the blacklist).
+         *
+         * @param bool $forceForever
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function invalidate($forceForever = false)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->invalidate($forceForever);
+        }
+                    /**
+         * Alias to get the payload, and as a result checks that
+         * the token is valid i.e. not expired or blacklisted.
+         *
+         * @return \Tymon\JWTAuth\Payload 
+         * @throws \Tymon\JWTAuth\Exceptions\JWTException
+         * @static 
+         */ 
+        public static function checkOrFail()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->checkOrFail();
+        }
+                    /**
+         * Check that the token is valid.
+         *
+         * @param bool $getPayload
+         * @return \Tymon\JWTAuth\Payload|bool 
+         * @static 
+         */ 
+        public static function check($getPayload = false)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->check($getPayload);
+        }
+                    /**
+         * Get the token.
+         *
+         * @return \Tymon\JWTAuth\Token|null 
+         * @static 
+         */ 
+        public static function getToken()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->getToken();
+        }
+                    /**
+         * Parse the token from the request.
+         *
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @throws \Tymon\JWTAuth\Exceptions\JWTException
+         * @static 
+         */ 
+        public static function parseToken()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->parseToken();
+        }
+                    /**
+         * Get the raw Payload instance.
+         *
+         * @return \Tymon\JWTAuth\Payload 
+         * @static 
+         */ 
+        public static function getPayload()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->getPayload();
+        }
+                    /**
+         * Alias for getPayload().
+         *
+         * @return \Tymon\JWTAuth\Payload 
+         * @static 
+         */ 
+        public static function payload()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->payload();
+        }
+                    /**
+         * Convenience method to get a claim value.
+         *
+         * @param string $claim
+         * @return mixed 
+         * @static 
+         */ 
+        public static function getClaim($claim)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->getClaim($claim);
+        }
+                    /**
+         * Create a Payload instance.
+         *
+         * @param \Tymon\JWTAuth\Contracts\JWTSubject $subject
+         * @return \Tymon\JWTAuth\Payload 
+         * @static 
+         */ 
+        public static function makePayload($subject)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->makePayload($subject);
+        }
+                    /**
+         * Check if the subject model matches the one saved in the token.
+         *
+         * @param string|object $model
+         * @return bool 
+         * @static 
+         */ 
+        public static function checkSubjectModel($model)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->checkSubjectModel($model);
+        }
+                    /**
+         * Set the token.
+         *
+         * @param \Tymon\JWTAuth\Token|string $token
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function setToken($token)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->setToken($token);
+        }
+                    /**
+         * Unset the current token.
+         *
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function unsetToken()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->unsetToken();
+        }
+                    /**
+         * Set the request instance.
+         *
+         * @param \Illuminate\Http\Request $request
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function setRequest($request)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->setRequest($request);
+        }
+                    /**
+         * Set whether the subject should be "locked".
+         *
+         * @param bool $lock
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function lockSubject($lock)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->lockSubject($lock);
+        }
+                    /**
+         * Get the Manager instance.
+         *
+         * @return \Tymon\JWTAuth\Manager 
+         * @static 
+         */ 
+        public static function manager()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->manager();
+        }
+                    /**
+         * Get the Parser instance.
+         *
+         * @return \Tymon\JWTAuth\Http\Parser\Parser 
+         * @static 
+         */ 
+        public static function parser()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->parser();
+        }
+                    /**
+         * Get the Payload Factory.
+         *
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function factory()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->factory();
+        }
+                    /**
+         * Get the Blacklist.
+         *
+         * @return \Tymon\JWTAuth\Blacklist 
+         * @static 
+         */ 
+        public static function blacklist()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->blacklist();
+        }
+                    /**
+         * Set the custom claims.
+         *
+         * @param array $customClaims
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function customClaims($customClaims)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->customClaims($customClaims);
+        }
+                    /**
+         * Alias to set the custom claims.
+         *
+         * @param array $customClaims
+         * @return \Tymon\JWTAuth\JWTAuth 
+         * @static 
+         */ 
+        public static function claims($customClaims)
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->claims($customClaims);
+        }
+                    /**
+         * Get the custom claims.
+         *
+         * @return array 
+         * @static 
+         */ 
+        public static function getCustomClaims()
+        {            //Method inherited from \Tymon\JWTAuth\JWT         
+                        /** @var \Tymon\JWTAuth\JWTAuth $instance */
+                        return $instance->getCustomClaims();
+        }
+         
+    }
+            /**
+     * 
+     *
+     */ 
+        class JWTFactory {
+                    /**
+         * Create the Payload instance.
+         *
+         * @param bool $resetClaims
+         * @return \Tymon\JWTAuth\Payload 
+         * @static 
+         */ 
+        public static function make($resetClaims = false)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->make($resetClaims);
+        }
+                    /**
+         * Empty the claims collection.
+         *
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function emptyClaims()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->emptyClaims();
+        }
+                    /**
+         * Build and get the Claims Collection.
+         *
+         * @return \Tymon\JWTAuth\Claims\Collection 
+         * @static 
+         */ 
+        public static function buildClaimsCollection()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->buildClaimsCollection();
+        }
+                    /**
+         * Get a Payload instance with a claims collection.
+         *
+         * @param \Tymon\JWTAuth\Claims\Collection $claims
+         * @return \Tymon\JWTAuth\Payload 
+         * @static 
+         */ 
+        public static function withClaims($claims)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->withClaims($claims);
+        }
+                    /**
+         * Set the default claims to be added to the Payload.
+         *
+         * @param array $claims
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function setDefaultClaims($claims)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->setDefaultClaims($claims);
+        }
+                    /**
+         * Helper to set the ttl.
+         *
+         * @param int $ttl
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function setTTL($ttl)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->setTTL($ttl);
+        }
+                    /**
+         * Helper to get the ttl.
+         *
+         * @return int 
+         * @static 
+         */ 
+        public static function getTTL()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->getTTL();
+        }
+                    /**
+         * Get the default claims.
+         *
+         * @return array 
+         * @static 
+         */ 
+        public static function getDefaultClaims()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->getDefaultClaims();
+        }
+                    /**
+         * Get the PayloadValidator instance.
+         *
+         * @return \Tymon\JWTAuth\Validators\PayloadValidator 
+         * @static 
+         */ 
+        public static function validator()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->validator();
+        }
+                    /**
+         * Set the custom claims.
+         *
+         * @param array $customClaims
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function customClaims($customClaims)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->customClaims($customClaims);
+        }
+                    /**
+         * Alias to set the custom claims.
+         *
+         * @param array $customClaims
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function claims($customClaims)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->claims($customClaims);
+        }
+                    /**
+         * Get the custom claims.
+         *
+         * @return array 
+         * @static 
+         */ 
+        public static function getCustomClaims()
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->getCustomClaims();
+        }
+                    /**
+         * Set the refresh flow flag.
+         *
+         * @param bool $refreshFlow
+         * @return \Tymon\JWTAuth\Factory 
+         * @static 
+         */ 
+        public static function setRefreshFlow($refreshFlow = true)
+        {
+                        /** @var \Tymon\JWTAuth\Factory $instance */
+                        return $instance->setRefreshFlow($refreshFlow);
         }
          
     }
@@ -22509,6 +22943,8 @@ namespace  {
             class View extends \Illuminate\Support\Facades\View {}
             class Vite extends \Illuminate\Support\Facades\Vite {}
             class Flare extends \Spatie\LaravelIgnition\Facades\Flare {}
+            class JWTAuth extends \Tymon\JWTAuth\Facades\JWTAuth {}
+            class JWTFactory extends \Tymon\JWTAuth\Facades\JWTFactory {}
      
 }
 
