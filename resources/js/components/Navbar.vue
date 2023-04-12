@@ -13,6 +13,9 @@
         <li class="nav-item">
           <RouterLink class="nav-link active" aria-current="page" :to="{ name: 'user.registr' }">Registration</RouterLink>
         </li>
+        <li class="nav-item">
+          <RouterLink class="nav-link active" aria-current="page" :to="{ name: 'user.personal' }">Personal</RouterLink>
+        </li>
       </ul>
 
     </div>

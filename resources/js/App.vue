@@ -2,7 +2,7 @@
   <div class="container">
     <div class="container-fluid">
       <Navbar />
-      <RouterView></RouterView>
+      <router-view></router-view>
     </div>
   </div>
 </template>

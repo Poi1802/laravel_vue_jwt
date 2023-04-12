@@ -29,6 +29,10 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
   Route::post('me', [AuthController::class, 'me']);
 });
 
+Route::middleware('auth:api')->namespace('App\\Http\\Controllers\\User')->prefix('users')->group(function () {
+  Route::get('/', 'IndexController');
+});
+
 Route::group(['namespace' => 'App\\Http\\Controllers', 'prefix' => 'users'], function () {
   Route::post('/', 'StoreController');
   Route::get('/{user}', 'ShowController');

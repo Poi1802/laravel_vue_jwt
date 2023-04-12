@@ -16,6 +16,11 @@ const routes = [
     component: () => import("./pages/User/Registr.vue"),
     name: "user.registr",
   },
+  {
+    path: "/registr",
+    component: () => import("./pages/User/Personal.vue"),
+    name: "user.personal",
+  },
 ];
 
 const router = createRouter({

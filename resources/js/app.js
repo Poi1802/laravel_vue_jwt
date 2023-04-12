@@ -37,4 +37,6 @@ app.component("App", App);
  * scaffolding. Otherwise, you will need to add an element yourself.
  */
 
-app.use(router).mount("#app");
+app
+  .use(router)
+  .mount("#app");
