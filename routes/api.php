@@ -29,7 +29,7 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function ($router) {
   Route::post('me', [AuthController::class, 'me']);
 });
 
-Route::middleware('auth:api')->namespace('App\\Http\\Controllers\\User')->prefix('users')->group(function () {
+Route::middleware('jwt.auth')->namespace('App\\Http\\Controllers\\User')->prefix('users')->group(function () {
   Route::get('/', 'IndexController');
 });
 

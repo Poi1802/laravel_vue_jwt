@@ -8,13 +8,22 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <li class="nav-item">
-          <RouterLink class="nav-link active" aria-current="page" :to="{ name: 'user.login' }">Login</RouterLink>
+          <RouterLink class="nav-link" :to="{ name: 'main' }">User list</RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link active" aria-current="page" :to="{ name: 'user.registr' }">Registration</RouterLink>
+        <li v-if="!token" class="nav-item">
+          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.login' }">Login
+          </RouterLink>
         </li>
-        <li class="nav-item">
-          <RouterLink class="nav-link active" aria-current="page" :to="{ name: 'user.personal' }">Personal</RouterLink>
+        <li v-if="!token" class="nav-item">
+          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.registr' }">
+            Registration</RouterLink>
+        </li>
+        <li v-if="token" class="nav-item">
+          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.personal' }">Personal
+          </RouterLink>
+        </li>
+        <li v-if="token" class="nav-item">
+          <a @click.prevent="userLogout" href="" class="nav-link">Logout</a>
         </li>
       </ul>
 
@@ -23,8 +32,25 @@
 </template>
 
 <script>
-export default {
+import myAxios from '../myAxios';
 
+export default {
+  props: {
+    token: String
+  },
+  mounted() {
+    // console.log(this.$router);
+  },
+  methods: {
+    userLogout() {
+      myAxios.post('/api/auth/logout')
+        .then(res => {
+          localStorage.removeItem('token')
+          this.$router.push({ name: 'user.login' })
+          console.log(res)
+        })
+    }
+  }
 }
 </script>
 

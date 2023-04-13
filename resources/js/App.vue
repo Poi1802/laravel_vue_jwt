@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <div class="container-fluid">
-      <Navbar />
-      <router-view></router-view>
+      <Navbar :token="token" />
+      <router-view :key="$route.fullPath"></router-view>
     </div>
   </div>
 </template>
@@ -13,6 +13,12 @@ import Navbar from './components/Navbar.vue';
 export default {
   components: {
     Navbar
+  },
+  data: () => ({
+    token: localStorage.getItem('token')
+  }),
+  updated() {
+    this.token = localStorage.getItem('token')
   }
 }
 </script>

@@ -11,6 +11,7 @@
     </div>
     <button type="submit" class="btn btn-primary">Login</button>
   </form>
+  <div v-if="error" class="error text-danger">{{ error }}</div>
 </template>
 
 <script>
@@ -19,7 +20,8 @@ export default {
     form: {
       email: '',
       password: ''
-    }
+    },
+    error: '',
   }),
   methods: {
     loginUser() {
@@ -28,6 +30,7 @@ export default {
           localStorage.setItem('token', res.data.access_token)
           this.$router.push({ name: 'user.personal' })
         })
+        .catch(err => this.error = err.response.data.error)
     }
   }
 }

@@ -19,6 +19,7 @@
     </div>
     <button :disabled="isDisabled" type="submit" class="btn btn-primary">Registr</button>
   </form>
+  <div v-if="error" class="error text-danger">{{ error }}</div>
 </template>
 
 <script>
@@ -29,6 +30,7 @@ export default {
       name: '',
       password: '',
     },
+    error: '',
     confirmationPassword: ''
   }),
   computed: {
@@ -42,8 +44,10 @@ export default {
         .then(res => {
           this.form = {};
           this.confirmationPassword = ''
+          localStorage.setItem('token', res.data.access_token)
+          this.$router.push({ name: 'user.personal' })
         })
-        .catch(err => console.log(err))
+        .catch(err => this.error = err.response.data.error)
 
     }
   }
