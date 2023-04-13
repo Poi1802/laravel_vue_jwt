@@ -7,19 +7,23 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <li class="nav-item">
-          <RouterLink class="nav-link" :to="{ name: 'main' }">User list</RouterLink>
+        <li v-if="token" class="nav-item">
+          <RouterLink :class="{ 'active': routeName === 'main' }" class="nav-link"
+            :to="{ name: 'main' }">User list</RouterLink>
         </li>
         <li v-if="!token" class="nav-item">
-          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.login' }">Login
+          <RouterLink :class="{ 'active': routeName === 'user.login' }" class="nav-link"
+            aria-current="page" :to="{ name: 'user.login' }">Login
           </RouterLink>
         </li>
         <li v-if="!token" class="nav-item">
-          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.registr' }">
+          <RouterLink :class="{ 'active': routeName === 'user.registr' }" class="nav-link"
+            aria-current="page" :to="{ name: 'user.registr' }">
             Registration</RouterLink>
         </li>
         <li v-if="token" class="nav-item">
-          <RouterLink class="nav-link" aria-current="page" :to="{ name: 'user.personal' }">Personal
+          <RouterLink :class="{ 'active': routeName === 'user.personal' }" class="nav-link"
+            aria-current="page" :to="{ name: 'user.personal' }">Personal
           </RouterLink>
         </li>
         <li v-if="token" class="nav-item">
@@ -36,10 +40,8 @@ import myAxios from '../myAxios';
 
 export default {
   props: {
-    token: String
-  },
-  mounted() {
-    // console.log(this.$router);
+    token: String,
+    routeName: String
   },
   methods: {
     userLogout() {

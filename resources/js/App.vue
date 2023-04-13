@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-fluid">
-      <Navbar :token="token" />
+      <Navbar :token="token" :routeName="routeName" />
       <router-view :key="$route.fullPath"></router-view>
     </div>
   </div>
@@ -15,9 +15,14 @@ export default {
     Navbar
   },
   data: () => ({
-    token: localStorage.getItem('token')
+    token: localStorage.getItem('token'),
+    routeName: ''
   }),
+  mounted() {
+    this.routeName = this.$route.name
+  },
   updated() {
+    this.routeName = this.$route.name
     this.token = localStorage.getItem('token')
   }
 }
